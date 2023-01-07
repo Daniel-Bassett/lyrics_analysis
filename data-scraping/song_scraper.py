@@ -1,11 +1,17 @@
-import selenium
-import pandas as pd
+from bs4 import BeautifulSoup
+import requests
+import time
+import itertools
 
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+response = requests.get('https://www.billboard.com/charts/year-end/2013/hot-dance-electronic-songs/')
+soup = BeautifulSoup(response.text, "html.parser")
+chart_results = soup.find(class_='chart-results-list')
+raw_titles = chart_results.find_all(class_='c-title')
+ranks_and_artists = chart_results.find_all(class_='c-label')
 
-PATH = 'driver/chromedriver'
-option = webdriver.ChromeOptions()
+titles = [raw_titles[i].text.strip() for i in range(len(raw_titles))]
+ranks = [int(ranks_and_artists[i].text.strip()) for i in range(0, len(ranks_and_artists), 2)]
+artists = [ranks_and_artists[i].text.strip() for i in range(1, len(ranks_and_artists), 2)]
+
+for (rank, artist, titles) in zip(ranks, artists, titles):
+    print(rank, artist, titles)
