@@ -5,14 +5,14 @@ import time
 import itertools
 
 years = [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022]
-genre = 'christian'
+genre = 'pop'
 
 lyrics_list = []
 
 for year in years:
     print(year)
     time.sleep(3)
-    response = requests.get(f'https://www.billboard.com/charts/year-end/{year}/hot-christian-songs/')
+    response = requests.get(f'https://www.billboard.com/charts/year-end/{year}/pop-songs/')
     soup = BeautifulSoup(response.text, "html.parser")
     chart_results = soup.find(class_='chart-results-list')
     raw_titles = chart_results.find_all(class_='c-title')
@@ -32,4 +32,4 @@ for year in years:
         })
     
 df = pd.DataFrame(lyrics_list)
-df.to_csv('data/christian.csv', index=False)
+df.to_csv('data/pop.csv', index=False)
