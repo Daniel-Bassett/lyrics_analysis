@@ -4,15 +4,14 @@ import requests
 import time
 import itertools
 
-labels = ['Christian', 'Country', 'Electro-Dance', 'Hip-Hop-RB', 'Pop', 'Rock']
+genres = ['Christian', 'Country', 'Electro-Dance', 'Hip-Hop-RB', 'Pop', 'Rock']
 urls = ['hot-christian-songs','hot-country-songs', 'hot-dance-electronic-songs', 'hot-r-and-and-b-hip-hop-songs','pop-songs', 'hot-rock-songs']
 years = [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022]
 
-
-for (url, label) in zip(urls, labels):
+for (url, genre) in zip(urls, genres):
     song_list = []
     for year in years:
-        print(year, label)
+        print(year, genre)
         time.sleep(2)
         response = requests.get(f'https://www.billboard.com/charts/year-end/{year}/{url}/')
         soup = BeautifulSoup(response.text, "html.parser")
@@ -30,9 +29,8 @@ for (url, label) in zip(urls, labels):
                 'title': title,
                 'artist': artist,
                 'rank': rank,
-                'genre': label,
+                'genre': genre,
                 'year': year
             })
-    
     df = pd.DataFrame(song_list)
-    df.to_csv(f'data/{label}.csv', index=False)
+    df.to_csv(f'data/{genre}.csv', index=False)
