@@ -7,7 +7,7 @@ import itertools
 labels = ['Christian', 'Country', 'Electro-Dance', 'Hip-Hop-RB', 'Pop', 'Rock']
 urls = ['hot-christian-songs','hot-country-songs', 'hot-dance-electronic-songs', 'hot-r-and-and-b-hip-hop-songs','pop-songs', 'hot-rock-songs']
 years = [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022]
-genre = 'pop'
+
 
 for (url, label) in zip(urls, labels):
     song_list = []
@@ -30,7 +30,7 @@ for (url, label) in zip(urls, labels):
                 'title': title,
                 'artist': artist,
                 'rank': rank,
-                'genre': genre,
+                'genre': label,
                 'year': year
             })
     
