@@ -22,16 +22,21 @@ for (dframe, label) in zip(dataframes, labels):
     lyrics_list = []
     for row, col in dframe.iterrows():
         print(col['title'], col['artist'], col['year'])
-        song = genius.search_song(col['title'], col['artist'])
-        lyrics = song.lyrics.split()
-        for word in lyrics:
-            lyrics_list.append({
-                'word': word,
-                'artist': col['artist'],
-                'title': col['title'],
-                'year': col['year'],
-                'genre': col['genre'],
-                'rank': col['rank']
-        })
+        try:
+            song = genius.search_song(col['title'], col['artist'])
+            lyrics = song.lyrics.split()
+            for word in lyrics:
+                lyrics_list.append({
+                    'word': word,
+                    'artist': col['artist'],
+                    'title': col['title'],
+                    'year': col['year'],
+                    'genre': col['genre'],
+                    'rank': col['rank']
+            })
+        except:
+            print('-----------There was an ERROR here-----------')
+            print(col['title'], col['artist'], col['year'])
+            print('-----------There was an ERROR here-----------')
     df = pd.DataFrame(lyrics_list)
     df.to_csv(f'data\lyrics\{label}lyrics.csv')
