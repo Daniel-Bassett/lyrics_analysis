@@ -8,6 +8,7 @@ df = pd.read_csv('..\data\lyrics\clean_df.csv')
 word_count = pd.read_csv('..\data\lyrics\word_count.csv')
 counts_by_year = pd.read_csv('..\data\lyrics\word_count_year.csv')
 
+
 def bar_charts(genres_choice, df):
     top_5 = df
     col1, col2 = st.columns(2)
@@ -90,37 +91,8 @@ def main():
     line_chart_year(counts_by_year)
 
 
+st.image('..\images\lyrics-scraper-code.png')
 
-
-    # with st.expander('Line Chart of Word Popularity', expanded=True):
-    #     words = new_df['word'].unique()
-    #     words_choice = st.multiselect('Choose words to compare', words, default=['beer', 'whiskey'])
-    #     if words_choice:
-    #         temp_df_list = []
-    #         for word in words_choice:
-    #             temp_df = new_df.groupby('year')['word'].value_counts().unstack()[word].to_frame()
-    #             temp_df['word'] = word
-    #             temp_df.rename(columns={word: 'count'}, inplace=True)
-    #             temp_df.reset_index(inplace=True)
-    #             temp_df_list.append(temp_df)
-    #         plotting_df = pd.concat(temp_df_list)
-    #         plotting_df.fillna(0, inplace=True)
-    #         x_plot = plotting_df['year']
-    #         y_plot = plotting_df['count']
-    #         line_plots = px.line(data_frame=plotting_df, x='year', y='count', title='The Number of Top Country Songs a Word Appears in by Year', color='word', labels={'count': 'Song Count', 'year': 'Year'})
-    #         line_plots.update_layout(title_x=0.5)
-    #         st.plotly_chart(line_plots, use_container_width=True)
-
-# horizontal barchart of one word percentage
-# word = 'beer'
-# genre = 'Country'
-# word_count = word_count_df[(word_count_df['genre'] == genre) & (word_count_df['word'] == word)]['count']
-# country_song_count = len(df[df['genre'] == genre]['title'].unique())
-# temp_df = word_count_df[(word_count_df['genre'] == genre) & (word_count_df['word'] == word)]
-# barh_plot = px.bar(y=percentage, orientation='h')
-
-
-    
 if __name__ == '__main__':
     main()
 
