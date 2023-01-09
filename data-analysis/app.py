@@ -1,10 +1,12 @@
 import plotly_express as px
 import streamlit as st
 import pandas as pd
+import numpy as np
 
 # load the data
 df = pd.read_csv('..\data\lyrics\clean_df.csv')
 word_count = pd.read_csv('..\data\lyrics\word_count.csv')
+counts_by_year = pd.read_csv('..\data\lyrics\word_count_year.csv')
 
 def bar_charts(genres_choice, df):
     top_5 = df
@@ -47,6 +49,30 @@ def grouped_histogram(df):
     st.plotly_chart(fig)
 
 
+def line_chart_year(df):
+    counts_by_year = df
+    st.header('Word Popularity by Year')
+    st.write('Using a line graph, this shows the percentage of songs a word appears in for a given year.')
+    # multiselect from user
+    col1, col2 = st.columns(2)
+    with col1:
+        genres = list(counts_by_year['genre'].unique())
+        genre_choice = st.selectbox(options=genres, index=genres.index('Country') ,label='Choose a Genre')
+    with col2:
+        words = counts_by_year[counts_by_year['count'] > 2]['word'].unique()
+        word_choice = st.multiselect(options=words, default=['beer', 'whiskey'], label='Choose Words to Compare')
+    # creates mask from the mutliselect variables
+    word_mask = counts_by_year['word'].isin(word_choice)
+    genre_mask = counts_by_year['genre'] == genre_choice
+    # plot line
+    fig = px.line(data_frame=counts_by_year[genre_mask & word_mask], x='year', y='percentage year', color='word')
+    fig.update_layout(
+        yaxis_title='Percentage of Songs',
+        xaxis = dict(tick0=2012, dtick=1)
+        )
+    st.plotly_chart(fig)
+
+
 def main():
     st.title('Top Five Words by Genre')
         # top 5 words for one genre
@@ -61,6 +87,9 @@ def main():
     genres_choice = st.multiselect('Choose genres to compare', genres, default=['Christian', 'Electro-Dance'])
     bar_charts(genres_choice, word_count)
     grouped_histogram(word_count)
+    line_chart_year(counts_by_year)
+
+
 
 
     # with st.expander('Line Chart of Word Popularity', expanded=True):
