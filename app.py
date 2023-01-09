@@ -95,14 +95,14 @@ def main():
             'so that I could then scrape the corresponding data off of genius using an API. Once I had all the lyrics in csv format. I used pandas '
             'to clean and rearrange the data into a format fit for use.'
         )
-        st.image('images\lyrics-scraper-code.png', width=500, caption='The code for scraping lyrics')
+        st.image('images/lyrics-scraper-code.png', width=500, caption='The code for scraping lyrics')
         st.markdown('### Cleaning the Data')
         st.write(
             'Using pandas, I merged all the dataframes from each genre into one large dataframe. I then stripped chars that were unnecessary(&!?,) '
             'and often found themselves tacked on to words. I applied a stop word filter to delete all of stop words. I then dropped all the duplicates so that a word is counted '
             'only one time for each song in which they appear. Using multi-indexing, filtering, and other techniques, I created a few csv files of dataframes that I found useful for my project:'
         )
-        st.image('images\clean-data.png', caption='How I cleaned rearranged the data')
+        st.image('images/clean-data.png', caption='How I cleaned rearranged the data')
         st.markdown('### Visualization of Data')
         st.write(
             'Using the cleaned and organized data, streamlit and plotly were great tools for visualization and making an interactive application. '
