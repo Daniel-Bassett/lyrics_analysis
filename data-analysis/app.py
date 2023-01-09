@@ -32,11 +32,11 @@ def main():
         'This shows the top words by percentage of songs that contains the word in their lyrics.'
         'The first two charts show the word "love" appearing in 62.2\% of all Christian songs and 57.5\% of all Electro-Dance songs.'
     )
+
+    # this generates bar charts
     genres = word_count['genre'].unique()
     genres_choice = st.multiselect('Choose genres to compare', genres, default=['Christian', 'Electro-Dance'])
     bar_charts(genres_choice, word_count)
-
-    # this codes the interactive line chart
   
     # with st.expander('Line Chart of Word Popularity', expanded=True):
     #     words = new_df['word'].unique()
