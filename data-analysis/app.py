@@ -13,16 +13,18 @@ def bar_charts(genres_choice, df):
     for genre in genres_choice:
         if genres_choice.index(genre) % 2 == 0:
             with col1:
-                temp_df = top_5[top_5['genre'] == genre]
-                bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
-                bar_plots.update_layout(title_x=0.5, showlegend=True)
-                st.plotly_chart(bar_plots, use_container_width=True)
+                with st.expander(genre, expanded=True):
+                    temp_df = top_5[top_5['genre'] == genre]
+                    bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
+                    bar_plots.update_layout(title_x=0.5, showlegend=True)
+                    st.plotly_chart(bar_plots, use_container_width=True)
         else:
             with col2: 
-                temp_df = top_5[top_5['genre'] == genre]
-                bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
-                bar_plots.update_layout(title_x=0.5, showlegend=True)
-                st.plotly_chart(bar_plots, use_container_width=True)
+                with st.expander(genre, expanded=True):
+                    temp_df = top_5[top_5['genre'] == genre]
+                    bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
+                    bar_plots.update_layout(title_x=0.5, showlegend=True)
+                    st.plotly_chart(bar_plots, use_container_width=True)
 
 def main():
     st.title('Top Five Words by Genre')
