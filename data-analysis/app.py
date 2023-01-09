@@ -1,5 +1,6 @@
 import plotly_express as px
 import streamlit as st
+from streamlit_option_menu import option_menu
 import pandas as pd
 import numpy as np
 
@@ -75,24 +76,55 @@ def line_chart_year(df):
 
 
 def main():
-    st.title('Top Five Words by Genre')
-        # top 5 words for one genre
-    st.header('Introduction')
-    st.write(
-        'This shows the top words by percentage of songs that contains the word in their lyrics.'
-        'The first two charts show the word "love" appearing in 62.2\% of all Christian songs and 57.5\% of all Electro-Dance songs.'
-    )
-
-    # this generates bar charts
-    genres = word_count['genre'].unique()
-    genres_choice = st.multiselect('Choose genres to compare', genres, default=['Christian', 'Electro-Dance'])
-    bar_charts(genres_choice, word_count)
-    grouped_histogram(word_count)
-    line_chart_year(counts_by_year)
-
-
-st.image('..\images\lyrics-scraper-code.png')
-
+    with st.sidebar:
+        selected = option_menu(
+            menu_title='Main Menu',
+            options=['Introduction', 'Top Five Words by Genre', 'Word Popularity by Year', 'Lyrics by Genre']
+        )
+    if selected == 'Introduction':
+        st.title('Introduction')
+        st.write(
+            'Have you ever been listening to country music and noticed a trend? They all seem to sing about the same things... trucks, lakes, beer, and whiskey. '
+            'Or maybe you\'re a hip-hop enthusiast and noticed that a lot of lyrics are really NSFW. '
+            'In order to explore this, I first "scraped" together all the top songs and artists from [Billboard\'s](#https://www.billboard.com/) Top 100 Songs for the years 2013 through 2022 using beautifulsoup. '
+            'I then scraped the lyrics off [genius](#https://genius.com/) using the lyrics genius API and put them into csv format. Using pandas, I cleaned the data and manipulated it into dataframes that I found useful. '
+            'Finally, I made an app to visualize this data in an interactive and fun way that I hope you will enjoy!'
+            )
+        st.markdown('### Let\'s get some data!')
+        st.write(
+            'First, I needed some data! Using beautifulsoup I scraped all the song and artists from Billboard across six different genres. '
+            'Once scraped, I output the data in csv format using pandas. This allowed me to iterate over every artist and song title '
+            'so that I could then scrape the corresponding data off of genius using an API. Once I had all the lyrics in csv format. I used pandas '
+            'to clean and rearrange the data into a format fit for use.'
+        )
+        st.image('..\images\lyrics-scraper-code.png', width=500, caption='The code for scraping lyrics')
+        st.markdown('### Cleaning the Data')
+        st.write(
+            'Using pandas, I merged all the dataframes from each genre into one large dataframe. I then stripped chars that were unnecessary(&!?,) '
+            'and often found themselves tacked on to words. I applied a stop word filter to delete all of stop words. I then dropped all the duplicates so that a word is counted '
+            'only one time for each song in which they appear. Using multi-indexing, filtering, and other techniques, I created a few csv files of dataframes that I found useful for my project:'
+        )
+        st.image('..\images\clean-data.png', caption='How I cleaned rearranged the data')
+        st.markdown('### Visualization of Data')
+        st.write(
+            'Using the cleaned and organized data, streamlit and plotly were great tools for visualization and making an interactive application. '
+            'Just import the data and with a few lines of code you can have some cool looking graphs that are interactive.'
+        )
+    if selected == 'Top Five Words by Genre':
+        st.title('Top Five Words by Genre')
+        st.write(
+            'This shows the top words by percentage of songs that contain the word in their lyrics. '
+            'The first two charts show the word "love" appearing in 62.2\% of all Christian songs and 57.5\% of all Electro-Dance songs. '
+            'Feel free to add/subtract genres to compare!'
+            )
+        genres = word_count['genre'].unique()
+        genres_choice = st.multiselect('Choose genres to compare', genres, default=['Christian', 'Electro-Dance'])
+        bar_charts(genres_choice, word_count)
+    if selected == 'Lyrics by Genre':
+        grouped_histogram(word_count)
+    if selected == 'Word Popularity by Year':
+        line_chart_year(counts_by_year)
+    
 if __name__ == '__main__':
     main()
 
