@@ -6,57 +6,35 @@ import pandas as pd
 df = pd.read_csv('..\data\lyrics\clean_df.csv')
 word_count = pd.read_csv('..\data\lyrics\word_count.csv')
 
+def bar_charts(genres_choice, df):
+    top_5 = df
+    col1, col2 = st.columns(2)
+    top_5 = word_count.groupby('genre').head().sort_values(by=['genre', 'percentage'], ascending=False)
+    for genre in genres_choice:
+        if genres_choice.index(genre) % 2 == 0:
+            with col1:
+                temp_df = top_5[top_5['genre'] == genre]
+                bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
+                bar_plots.update_layout(title_x=0.5, showlegend=True)
+                st.plotly_chart(bar_plots, use_container_width=True)
+        else:
+            with col2: 
+                temp_df = top_5[top_5['genre'] == genre]
+                bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
+                bar_plots.update_layout(title_x=0.5, showlegend=True)
+                st.plotly_chart(bar_plots, use_container_width=True)
+
 def main():
-    st.title('Lyrics Analysis')
+    st.title('Top Five Words by Genre')
         # top 5 words for one genre
-    st.header('Top Five Words by Genre')
+    st.header('Introduction')
     st.write(
         'This shows the top words by percentage of songs that contains the word in their lyrics.'
         'The first two charts show the word "love" appearing in 62.2\% of all Christian songs and 57.5\% of all Electro-Dance songs.'
     )
-
-    col1, col2 = st.columns(2)
-    top_5 = word_count.groupby('genre').head().sort_values(by=['genre', 'percentage'], ascending=False)
-    with col1: 
-        genre = 'Christian'
-        temp_df = top_5[top_5['genre'] == genre]
-        with st.expander(label=genre, expanded=True):
-            bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
-            bar_plots.update_layout(title_x=0.5, showlegend=True)
-            st.plotly_chart(bar_plots, use_container_width=True)    
-        genre = 'Rock'
-        temp_df = top_5[top_5['genre'] == genre]
-        with st.expander(label=genre):
-            bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
-            bar_plots.update_layout(title_x=0.5, showlegend=True)
-            st.plotly_chart(bar_plots, use_container_width=True)   
-        genre = 'Pop'
-        temp_df = top_5[top_5['genre'] == genre]
-        with st.expander(label=genre):
-            bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
-            bar_plots.update_layout(title_x=0.5, showlegend=True)
-            st.plotly_chart(bar_plots, use_container_width=True) 
-
-    with col2:
-        genre = 'Electro-Dance'
-        temp_df = top_5[top_5['genre'] == genre]
-        with st.expander(label=genre, expanded=True):
-            bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
-            bar_plots.update_layout(title_x=0.5, showlegend=True)
-            st.plotly_chart(bar_plots, use_container_width=True) 
-        genre = 'Country'
-        temp_df = top_5[top_5['genre'] == genre]
-        with st.expander(label=genre):
-            bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
-            bar_plots.update_layout(title_x=0.5, showlegend=True)
-            st.plotly_chart(bar_plots, use_container_width=True) 
-        genre = 'Hip-Hop-RB'
-        temp_df = top_5[top_5['genre'] == genre]
-        with st.expander(label=genre):
-            bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
-            bar_plots.update_layout(title_x=0.5, showlegend=True)
-            st.plotly_chart(bar_plots, use_container_width=True) 
-    
+    genres = word_count['genre'].unique()
+    genres_choice = st.multiselect('Choose genres to compare', genres, default=['Christian', 'Electro-Dance'])
+    bar_charts(genres_choice, word_count)
 
     # this codes the interactive line chart
   
