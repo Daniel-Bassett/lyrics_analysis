@@ -26,6 +26,27 @@ def bar_charts(genres_choice, df):
                     bar_plots.update_layout(title_x=0.5, showlegend=True)
                     st.plotly_chart(bar_plots, use_container_width=True)
 
+
+def grouped_histogram(df):
+    word_count = df
+    st.header('Compare Words by Genre')
+    st.write('This shows the frequency of words by genre.')
+    word_options = word_count[word_count['count'] > 3]['word'].unique() # I reduced the number of words available in order to improve performance of app
+    words_choice = st.multiselect(options=word_options, label='Choose Words to Compare', default=['girl', 'boy'])
+    temp_df = word_count[word_count['word'].isin(words_choice)]
+    fig = px.bar(
+        data_frame=temp_df, 
+        x='word', 
+        y='percentage', 
+        color='genre', 
+        barmode='group',
+        text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)),
+        orientation='v',
+        )
+    fig.update_traces(textfont_size=12, textangle=0, textposition="outside", cliponaxis=False)
+    st.plotly_chart(fig)
+
+
 def main():
     st.title('Top Five Words by Genre')
         # top 5 words for one genre
@@ -39,7 +60,9 @@ def main():
     genres = word_count['genre'].unique()
     genres_choice = st.multiselect('Choose genres to compare', genres, default=['Christian', 'Electro-Dance'])
     bar_charts(genres_choice, word_count)
-  
+    grouped_histogram(word_count)
+
+
     # with st.expander('Line Chart of Word Popularity', expanded=True):
     #     words = new_df['word'].unique()
     #     words_choice = st.multiselect('Choose words to compare', words, default=['beer', 'whiskey'])
