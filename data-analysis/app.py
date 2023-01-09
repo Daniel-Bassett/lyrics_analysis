@@ -53,8 +53,6 @@ def grouped_histogram(df):
 
 def line_chart_year(df):
     counts_by_year = df
-    st.header('Word Popularity by Year')
-    st.write('Using a line graph, this shows the percentage of songs a word appears in for a given year.')
     # multiselect from user
     col1, col2 = st.columns(2)
     with col1:
@@ -123,6 +121,8 @@ def main():
     if selected == 'Lyrics by Genre':
         grouped_histogram(word_count)
     if selected == 'Word Popularity by Year':
+        st.header('Word Popularity by Year')
+        st.write('Using a line graph, this shows the percentage of songs a word appears through the years.')
         line_chart_year(counts_by_year)
     
 if __name__ == '__main__':
