@@ -40,11 +40,15 @@ def bar_charts(genres_choice, df):
 
 
 def grouped_histogram(df):
+    col1, col2  = st.columns([1, 3])
     word_count = df
     word_options = word_count[word_count['count'] > 3]['word'].unique() # I reduced the number of words available in order to improve performance of app
-    words_choice = st.multiselect(options=word_options, label='Choose Words to Compare', default=['girl', 'boy'])
+    with col1:
+        words_choice = st.multiselect(options=word_options, label='Choose Words to Compare', default=['girl', 'boy'])
     temp_df = word_count[word_count['word'].isin(words_choice)]
-    fig = px.bar(
+    col3, col4 = st.columns([5, 1])
+    with col3:
+        fig = px.bar(
         data_frame=temp_df, 
         x='word', 
         y='percentage', 
@@ -53,8 +57,8 @@ def grouped_histogram(df):
         text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)),
         orientation='v',
         )
-    fig.update_traces(textfont_size=12, textangle=0, textposition="outside", cliponaxis=False)
-    st.plotly_chart(fig)
+        fig.update_traces(textfont_size=12, textangle=0, textposition="outside", cliponaxis=False)
+        st.plotly_chart(fig, use_container_width=True)
 
 
 def line_chart_year(df):
