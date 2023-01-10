@@ -4,6 +4,9 @@ from streamlit_option_menu import option_menu
 import pandas as pd
 import numpy as np
 
+# set the page layout
+st.set_page_config(layout='wide')
+
 # load the data
 @st.experimental_memo
 def load_model(csv_path):
@@ -38,8 +41,6 @@ def bar_charts(genres_choice, df):
 
 def grouped_histogram(df):
     word_count = df
-    st.header('Compare Words by Genre')
-    st.write('This shows the frequency of words by genre.')
     word_options = word_count[word_count['count'] > 3]['word'].unique() # I reduced the number of words available in order to improve performance of app
     words_choice = st.multiselect(options=word_options, label='Choose Words to Compare', default=['girl', 'boy'])
     temp_df = word_count[word_count['word'].isin(words_choice)]
@@ -61,21 +62,37 @@ def line_chart_year(df):
     # multiselect from user
     col1, col2 = st.columns(2)
     with col1:
-        genres = list(counts_by_year['genre'].unique())
-        genre_choice = st.selectbox(options=genres, index=genres.index('Country') ,label='Choose a Genre')
-    with col2:
+        genres = counts_by_year['genre'].unique()
+        genre_choice = st.multiselect(options=genres, default=['Country', 'Hip-Hop-RB'],label='Choose a Genre')
+   
         words = counts_by_year[counts_by_year['count'] > 2]['word'].unique()
-        word_choice = st.multiselect(options=words, default=['beer', 'whiskey'], label='Choose Words to Compare')
-    # creates mask from the mutliselect variables
-    word_mask = counts_by_year['word'].isin(word_choice)
-    genre_mask = counts_by_year['genre'] == genre_choice
+        word_choice = st.multiselect(options=words, default=['girl', 'boy'], label='Choose Words to Compare')
+    # creates mask from the mutliselect genres
+    genre_mask = counts_by_year['genre'].isin(genre_choice)
     # plot line
-    fig = px.line(data_frame=counts_by_year[genre_mask & word_mask], x='year', y='percentage year', color='word')
-    fig.update_layout(
-        yaxis_title='Percentage of Songs',
-        xaxis = dict(tick0=2012, dtick=1)
-        )
-    st.plotly_chart(fig)
+    col3, col4 = st.columns(2)
+    for word in word_choice:
+        if word_choice.index(word) % 2 == 0:
+            with col3:
+                with st.expander(label=str(word).upper(), expanded=True):
+                    word_mask = counts_by_year['word'] == word
+                    fig = px.line(data_frame=counts_by_year[genre_mask & word_mask], x='year', y='percentage year', color='genre', title=f'Comparisons for the word {str(word).upper()}')
+                    fig.update_layout(
+                    yaxis_title='Percentage of Songs',
+                    xaxis = dict(tick0=2012, dtick=1)
+                    )
+                    st.plotly_chart(fig)
+        else:
+            with col4:
+                with st.expander(label=str(word).upper(), expanded=True):
+                    word_mask = counts_by_year['word'] == word
+                    fig = px.line(data_frame=counts_by_year[genre_mask & word_mask], x='year', y='percentage year', color='genre', title=f'Comparisons for the word {str(word).upper()}')
+                    fig.update_layout(
+                    yaxis_title='Percentage of Songs',
+                    xaxis = dict(tick0=2012, dtick=1)
+                    )
+                    st.plotly_chart(fig)
+    
 
 
 def main():
@@ -124,10 +141,12 @@ def main():
         genres_choice = st.multiselect('Choose genres to compare', genres, default=['Christian', 'Electro-Dance'])
         bar_charts(genres_choice, word_count)
     if selected == 'Lyrics by Genre':
+        st.header('Compare Words by Genre')
+        st.write('This shows the frequency of words by genre.')
         grouped_histogram(word_count)
     if selected == 'Word Popularity by Year':
         st.header('Word Popularity by Year')
-        st.write('Using a line graph, this shows the percentage of songs a word appears through the years.')
+        st.write('Using a line graph, this shows the percentage of songs a word appears in through the years by genre.')
         line_chart_year(counts_by_year)
     
 if __name__ == '__main__':
