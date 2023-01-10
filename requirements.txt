@@ -1,6 +1,7 @@
 plotly_express
 streamlit
 streamlit_option_menu
+streamlit-aggrid 
 pandas
 numpy
-st_aggrid==0.3.3*
+st_aggrid
