@@ -116,7 +116,7 @@ def main():
     if selected == 'Top Five Words by Genre':
         st.title('Top Five Words by Genre')
         st.write(
-            'This shows the top words by percentage of songs that contain the word in their lyrics. '
+            'This shows the top words by percentage of songs that contain the word in their lyrics respective of genre. '
             'The first two charts show the word "love" appearing in 62.2\% of all Christian songs and 57.5\% of all Electro-Dance songs. '
             'Feel free to add/subtract genres to compare!'
             )
