@@ -16,6 +16,10 @@ def load_model(csv_path):
 df = load_model('data/lyrics/clean_df.csv')
 word_count = load_model('data/lyrics/word_count.csv')
 counts_by_year = load_model('data/lyrics/word_count_year.csv')
+album_df = load_model('data/albums/albums_df.csv')
+
+# manipulate data
+artist_rank_year = album_df[['rank', 'artist', 'year']].groupby(['artist', 'year'])['rank'].min().to_frame().reset_index()
 
 
 def bar_charts(genres_choice, df):
@@ -28,14 +32,14 @@ def bar_charts(genres_choice, df):
                 with st.expander(genre, expanded=True):
                     temp_df = top_5[top_5['genre'] == genre]
                     bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
-                    bar_plots.update_layout(title_x=0.5, showlegend=True)
+                    bar_plots.update_layout(title_x=0.5, showlegend=True, height=600)
                     st.plotly_chart(bar_plots, use_container_width=True)
         else:
             with col2: 
                 with st.expander(genre, expanded=True):
                     temp_df = top_5[top_5['genre'] == genre]
                     bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
-                    bar_plots.update_layout(title_x=0.5, showlegend=True)
+                    bar_plots.update_layout(title_x=0.5, showlegend=True, height=600)
                     st.plotly_chart(bar_plots, use_container_width=True)
 
 
@@ -58,10 +62,11 @@ def grouped_histogram(df):
         orientation='v',
         )
         fig.update_traces(textfont_size=12, textangle=0, textposition="outside", cliponaxis=False)
+        fig.update_layout(height=600)
         st.plotly_chart(fig, use_container_width=True)
 
 
-def line_chart_year(df):
+def line_chart_lyrics(df):
     counts_by_year = df
     # multiselect from user
     col1, col2 = st.columns(2)
@@ -96,14 +101,34 @@ def line_chart_year(df):
                     xaxis = dict(tick0=2012, dtick=1)
                     )
                     st.plotly_chart(fig)
-    
+
+
+def line_chart_artists(df):
+    # import data and organize
+    artist_rank_year = df
+    artists = artist_rank_year[artist_rank_year['artist'].map(artist_rank_year['artist'].value_counts() > 1)]['artist'].unique() # filtered out artists that charted for only one year
+    # get user input
+    col1, col2 = st.columns([1, 4])
+    with col1: # use columns for padding
+        artist_choice = st.multiselect(options=artists, label='Choose artists', default=['Taylor Swift', 'Drake'])
+    artist_mask = artist_rank_year['artist'].isin(artist_choice)
+    dataframe = artist_rank_year[artist_mask]
+    # plot the data
+    col2, col3 = st.columns([5, 1])
+    with col2:
+        fig = px.line(data_frame=dataframe, x='year', y='rank', color='artist')
+        fig.update_layout(xaxis = dict(tick0=2001, dtick=3), height=600)
+        fig.update_yaxes(autorange='reversed', mirror=False)
+        st.plotly_chart(fig, use_container_width=True)
+
+
 
 
 def main():
     with st.sidebar:
         selected = option_menu(
             menu_title='Main Menu',
-            options=['Introduction', 'Top Five Words by Genre', 'Word Popularity by Year', 'Lyrics by Genre']
+            options=['Introduction', 'Top Five Words by Genre', 'Word Popularity by Year', 'Lyrics by Genre', 'Artist Rankings']
         )
     if selected == 'Introduction':
         st.title('Introduction')
@@ -145,14 +170,18 @@ def main():
         genres_choice = st.multiselect('Choose genres to compare', genres, default=['Christian', 'Electro-Dance'])
         bar_charts(genres_choice, word_count)
     if selected == 'Lyrics by Genre':
-        st.header('Compare Words by Genre')
+        st.header('Lyrics by Genre')
         st.write('This shows the frequency of words by genre.')
         grouped_histogram(word_count)
     if selected == 'Word Popularity by Year':
         st.header('Word Popularity by Year')
         st.write('Using a line graph, this shows the percentage of songs a word appears in through the years by genre.')
-        line_chart_year(counts_by_year)
-    
+        line_chart_lyrics(counts_by_year)
+    if selected == 'Artist Rankings':
+        st.header('Artist Rankings by Year')
+        st.write('Take a look at your favorite artist\'s best album performances over the years!' )
+        line_chart_artists(artist_rank_year)
+
 if __name__ == '__main__':
     main()
 
