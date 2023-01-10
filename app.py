@@ -1,6 +1,8 @@
 import plotly_express as px
 import streamlit as st
 from streamlit_option_menu import option_menu
+from st_aggrid import AgGrid
+from st_aggrid import GridOptionsBuilder
 import pandas as pd
 import numpy as np
 
@@ -72,10 +74,10 @@ def line_chart_lyrics(df):
     col1, col2 = st.columns(2)
     with col1:
         genres = counts_by_year['genre'].unique()
-        genre_choice = st.multiselect(options=genres, default=['Country', 'Hip-Hop-RB'],label='Choose a Genre')
+        genre_choice = st.multiselect(options=genres, default=['Country'],label='Choose a Genre')
    
         words = counts_by_year[counts_by_year['count'] > 2]['word'].unique()
-        word_choice = st.multiselect(options=words, default=['girl', 'boy'], label='Choose Words to Compare')
+        word_choice = st.multiselect(options=words, default=['whiskey', 'beer'], label='Choose Words to Compare')
     # creates mask from the mutliselect genres
     genre_mask = counts_by_year['genre'].isin(genre_choice)
     # plot line
@@ -122,38 +124,126 @@ def line_chart_artists(df):
         st.plotly_chart(fig, use_container_width=True)
 
 
+def artist_average_table(df):
+
+    album_df = df
+    # create a table
+    no_duplicate_albums = album_df[['artist', 'album']].drop_duplicates()
+
+    # get user input on min and max number of albums to filter
+    min_albums = st.number_input('minimum albums', min_value=1)
+    max_albums = st.number_input('maximum albums', min_value=1)
+
+    # calculates the number of unique albums each artist has and filters out the artist based on number of albums
+    min_max_albums_mask = no_duplicate_albums['artist'].map(no_duplicate_albums['artist'].value_counts().between(min_albums, max_albums))
+
+    # creates an array of unique names that meet meet the min_max albums criteria
+    artists = no_duplicate_albums[min_max_albums_mask]['artist'].unique()
+
+    # find the mean rank of all artists' albums
+    mean_of_artist_rank = album_df.groupby(['artist', 'album'])['rank'].min().to_frame().reset_index().groupby(['artist'])['rank'].mean().to_frame().reset_index()
+    
+    # only return the artists that meet the min_max criteria
+    mean_of_artist_filtered = mean_of_artist_rank[mean_of_artist_rank['artist'].isin(artists)].sort_values(by='rank')
+
+    # create dataframe of counts of unique albums for each artist and filter them out based on min_max criteria
+    album_counts = no_duplicate_albums[min_max_albums_mask]['artist'].value_counts().to_frame().reset_index().rename({'artist': 'album count', 'index': 'artist'}, axis=1)
+
+    # merge mean of artists filtered with album counts
+    table = pd.merge(mean_of_artist_filtered, album_counts).rename({'rank': 'average rank of albums (end of year)', 'count': 'total unique albums'}, axis=1)
+
+
+def aggrid_table(df):
+    album_df = df
+    # create a table
+    no_duplicate_albums = album_df[['artist', 'album']].drop_duplicates()
+
+    # create columns for user input 
+    col1, col2, col3 = st.columns([1, 1, 5])
+    # get user input on min and max number of albums to filter
+    with col1:
+        min_albums = st.number_input('Artist has at least this many albums', min_value=1, value=5)
+    with col2:
+        max_albums = st.number_input('Artist has at most this many albums', min_value=1, value=20)
+        
+
+    # calculates the number of unique albums each artist has and filters out the artist based on number of albums
+    min_max_albums_mask = no_duplicate_albums['artist'].map(no_duplicate_albums['artist'].value_counts().between(min_albums, max_albums))
+
+    # creates an array of unique names that meet meet the min_max albums criteria
+    artists = no_duplicate_albums[min_max_albums_mask]['artist'].unique()
+
+    # find the mean rank of all artists' albums
+    mean_of_artist_rank = album_df.groupby(['artist', 'album'])['rank'].min().to_frame().reset_index().groupby(['artist'])['rank'].mean().to_frame().reset_index()
+    
+    # only return the artists that meet the min_max criteria
+    mean_of_artist_filtered = mean_of_artist_rank[mean_of_artist_rank['artist'].isin(artists)].sort_values(by='rank')
+
+    # create dataframe of counts of unique albums for each artist and filter them out based on min_max criteria
+    album_counts = no_duplicate_albums[min_max_albums_mask]['artist'].value_counts().to_frame().reset_index().rename({'artist': 'album count', 'index': 'artist'}, axis=1)
+
+    # merge mean of artists filtered with album counts
+    final_df = pd.merge(mean_of_artist_filtered, album_counts).rename({'rank': 'average rank of albums (end of year)', 'count': 'total unique albums'}, axis=1)
+
+    # create columns
+    col1, col2 = st.columns([2, 3])
+
+    # create the Ag grid
+    with col1:
+        gd = GridOptionsBuilder.from_dataframe(final_df.head(100))
+        gd.configure_pagination(paginationAutoPageSize=False, paginationPageSize=10)
+        gd.configure_selection('single')
+        grid_options = gd.build()
+        st.markdown('#### Average Rank of Artist Albums')
+        table = AgGrid(final_df.head(1000), gridOptions=grid_options)
+        if table.selected_rows:
+            name = table.selected_rows[0]['artist']
+        
+
+
+    # use variable "name" to make discography 
+    with col2:
+        if table.selected_rows:
+            min_album_rank = album_df.groupby(['artist', 'album'])['rank'].min().to_frame().reset_index()
+            discography = min_album_rank[min_album_rank['artist'] == name].drop('artist', axis=1)
+            st.markdown(f'#### {name}\'s Top 200 Discography')
+            st.dataframe(discography, use_container_width=True)
+
+    
 
 
 def main():
     with st.sidebar:
         selected = option_menu(
             menu_title='Main Menu',
-            options=['Introduction', 'Top Five Words by Genre', 'Word Popularity by Year', 'Lyrics by Genre', 'Artist Rankings']
+            options=['Introduction', 'Top Five Words by Genre', 'Word Popularity by Year', 'Lyrics by Genre', 'Artist Rankings', 'Average Rank of Albums']
         )
     if selected == 'Introduction':
         st.title('Introduction')
         st.write(
             'Have you ever been listening to country music and noticed a trend? They all seem to sing about the same things... trucks, lakes, beer, and whiskey. '
             'Or maybe you\'re a hip-hop enthusiast and noticed that a lot of lyrics are really NSFW. '
+            'Are you curious about how your favorite singers have been ranking on the charts over the years? '
+            'Who is better? Taylor Swift or Drake? Let\'s find out using data! '
             'In order to explore this, I first "scraped" together all the top songs and artists from [Billboard\'s](#https://www.billboard.com/) Top 100 Songs for the years 2013 through 2022 using beautifulsoup. '
             'I then scraped the lyrics off [genius](#https://genius.com/) using the lyrics genius API and put them into csv format. Using pandas, I cleaned the data and manipulated it into dataframes that I found useful. '
             'Finally, I made an app to visualize this data in an interactive and fun way that I hope you will enjoy!'
             )
         st.markdown('### Let\'s get some data!')
         st.write(
-            'First, I needed some data! Using beautifulsoup I scraped all the song and artists from Billboard across six different genres. '
+            'First, I needed some data! Using beautifulsoup I scraped all the songs, artists, and albums from Billboard across six different genres. '
             'Once scraped, I output the data in csv format using pandas. This allowed me to iterate over every artist and song title '
-            'so that I could then scrape the corresponding data off of genius using an API. Once I had all the lyrics in csv format. I used pandas '
+            'so that I could then scrape the corresponding lyrics data off of genius using an API. Once I had all the lyrics in csv format, I used pandas '
             'to clean and rearrange the data into a format fit for use.'
         )
-        st.image('images/lyrics-scraper-code.png', width=500, caption='The code for scraping lyrics')
+        # st.image('images/lyrics-scraper-code.png', width=500, caption='The code for scraping lyrics')
         st.markdown('### Cleaning the Data')
         st.write(
             'Using pandas, I merged all the dataframes from each genre into one large dataframe. I then stripped chars that were unnecessary(&!?,) '
             'and often found themselves tacked on to words. I applied a stop word filter to delete all of stop words. I then dropped all the duplicates so that a word is counted '
             'only one time for each song in which they appear. Using multi-indexing, filtering, and other techniques, I created a few csv files of dataframes that I found useful for my project:'
         )
-        st.image('images/clean-data.png', caption='How I cleaned rearranged the data')
+        # st.image('images/clean-data.png', caption='How I cleaned rearranged the data')
         st.markdown('### Visualization of Data')
         st.write(
             'Using the cleaned and organized data, streamlit and plotly were great tools for visualization and making an interactive application. '
@@ -175,12 +265,27 @@ def main():
         grouped_histogram(word_count)
     if selected == 'Word Popularity by Year':
         st.header('Word Popularity by Year')
-        st.write('Using a line graph, this shows the percentage of songs a word appears in through the years by genre.')
+        st.write('Using a line graph, this shows the percentage of songs a word appears in through the years.')
         line_chart_lyrics(counts_by_year)
     if selected == 'Artist Rankings':
         st.header('Artist Rankings by Year')
-        st.write('Take a look at your favorite artist\'s best album performances over the years!' )
+        st.write('Take a look at your favorite artist\'s performance over the years!' )
         line_chart_artists(artist_rank_year)
+    if selected == 'Average Rank of Albums':
+        # aggrid
+        st.header('Average Rank of Albums')
+        st.write(
+            'Every year, Billboard releases the Top 200 albums ranking based on sales as well as audio on-demand streaming activity and digital sales of tracks from albums. '
+            'This calculates the average rank for an all of an artist\'s albums that have made it into the top 200. '
+            'You can filter this list based on the number of Top 200 albums the artist has made. For example, if you set min equal to \'5\' and max to \'20\', '
+            'it will return all the artists who have made anywhere from 5 to 20 albums that made it on the Top 200 charts. '
+            'Click on an artist\'s name on the table to get a snapshot of their discography'
+        )
+        aggrid_table(album_df)
+        # st.dataframe(artist_average_table(album_df))
+        
+
+
 
 if __name__ == '__main__':
     main()
