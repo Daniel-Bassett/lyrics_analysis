@@ -5,9 +5,14 @@ import pandas as pd
 import numpy as np
 
 # load the data
-df = pd.read_csv('data/lyrics/clean_df.csv')
-word_count = pd.read_csv('data/lyrics/word_count.csv')
-counts_by_year = pd.read_csv('data/lyrics/word_count_year.csv')
+@st.experimental_memo
+def load_model(csv_path):
+    df = pd.read_csv(csv_path)
+    return df
+
+df = load_model('data/lyrics/clean_df.csv')
+word_count = load_model('data/lyrics/word_count.csv')
+counts_by_year = load_model('data/lyrics/word_count_year.csv')
 
 
 def bar_charts(genres_choice, df):
