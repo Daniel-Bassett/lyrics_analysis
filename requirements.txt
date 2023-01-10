@@ -3,4 +3,4 @@ streamlit
 streamlit_option_menu
 pandas
 numpy
-st_aggrid
+st_aggrid==0.3.3*
