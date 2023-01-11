@@ -282,9 +282,10 @@ def main():
         st.header('Average Rank of Albums')
         st.write(
             'Every year, Billboard releases the Top 200 end-of-year album rankings based on sales as well as audio on-demand streaming activity and digital sales of tracks from albums. '
-            'This calculates the average rank for an all of an artist\'s albums that have made it into the top 200. '
+            'This calculates the average rank for all of an artist\'s albums that have made it into the Top 200. '
             'You can filter this list based on the number of Top 200 albums the artist has made. For example, if you set min equal to \'5\' and max to \'20\', '
             'it will return all the artists who have made anywhere from 5 to 20 albums that made it on the Top 200 charts. '
+            'If you set both to 1, you might get a list of one-hit wonders and up-and-comers.'
             'Click on an artist\'s name on the table to get a snapshot of their discography'
         )
         aggrid_table(album_df)
