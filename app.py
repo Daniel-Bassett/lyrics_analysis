@@ -116,7 +116,7 @@ def line_chart_artists(df):
     artist_mask = artist_rank_year['artist'].isin(artist_choice)
     dataframe = artist_rank_year[artist_mask]
     # plot the data
-    col2, col3 = st.columns([5, 1])
+    col2, col3 = st.columns([1, 1])
     with col2:
         fig = px.line(data_frame=dataframe, x='year', y='rank', color='artist')
         fig.update_layout(xaxis = dict(tick0=2001, dtick=3), height=600)
@@ -192,7 +192,7 @@ def aggrid_table(df):
     album_counts = no_duplicate_albums[min_max_albums_mask]['artist'].value_counts().to_frame().reset_index().rename({'artist': 'album count', 'index': 'artist'}, axis=1)
 
     # merge mean of artists filtered with album counts
-    final_df = pd.merge(mean_of_artist_filtered, album_counts).rename({'rank': 'average rank of artist', 'count': 'total unique albums'}, axis=1)
+    final_df = pd.merge(mean_of_artist_filtered, album_counts).rename({'rank': 'average rank of albums (EOY)', 'count': 'total unique albums'}, axis=1)
 
     # create columns
     col1, col2 = st.columns([2, 3])
@@ -290,14 +290,16 @@ def main():
     if selected == 'Average Rank of Albums':
         # aggrid
         st.header('Average Rank of Albums')
-        st.write(
-            'Every year, Billboard releases the Top 200 end-of-year album rankings based on sales as well as audio on-demand streaming activity and digital sales of tracks from albums. '
-            'This calculates the average rank for all of an artist\'s albums that have made it into the Top 200. '
-            'You can filter this list based on the number of Top 200 albums the artist has made. For example, if you set min equal to \'5\' and max to \'10\', '
-            'it will return all the artists who have made anywhere from 5 to 10 albums that made it on the Top 200 charts. '
-            'If you set both to 1, you might get a list of one-hit wonders and up-and-comers. '
-            'Click on an artist\'s name on the table to get a snapshot of their discography'
-        )
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            st.write(
+                'Every year, Billboard releases the Top 200 end-of-year album rankings based on sales as well as audio on-demand streaming activity and digital sales of tracks from albums. '
+                'This calculates the average rank for all of an artist\'s albums that have made it into the Top 200. '
+                'You can filter this list based on the number of Top 200 albums the artist has made. For example, if you set min equal to \'5\' and max to \'10\', '
+                'it will return all the artists who have made anywhere from 5 to 10 albums that made it on the Top 200 charts. '
+                'If you set both to 1, you might get a list of one-hit wonders and up-and-comers. '
+                'Click on an artist\'s name on the table to get a snapshot of their discography'
+            )
         aggrid_table(album_df)
         # st.dataframe(artist_average_table(album_df))
         
