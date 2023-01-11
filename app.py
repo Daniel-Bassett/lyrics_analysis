@@ -294,7 +294,7 @@ def main():
         with col1:
             st.write(
                 'Every year, Billboard releases the Top 200 end-of-year album rankings based on sales as well as audio on-demand streaming activity and digital sales of tracks from albums. '
-                'This calculates the average rank for all of an artist\'s albums that have made it into the Top 200. '
+                'This calculates the average rank for all of an artist\'s albums that have made it into the Top 200 over the last 21 years. '
                 'You can filter this list based on the number of Top 200 albums the artist has made. For example, if you set min equal to \'5\' and max to \'10\', '
                 'it will return all the artists who have made anywhere from 5 to 10 albums that made it on the Top 200 charts. '
                 'If you set both to 1, you might get a list of one-hit wonders and up-and-comers. '
