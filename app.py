@@ -257,7 +257,7 @@ def main():
             # st.image('images/clean-data.png', caption='How I cleaned rearranged the data')
             st.markdown('')
             st.write(
-                'Finally I was able to use cleaned and organized data. Streamlit and plotly were great tools for visualization and making an interactive application. '
+                'Finally I was able to use cleaned and organized data. Streamlit and plotly were great tools for visualization and making an interactive application '
                 'very quickly.'
                 'Just import the data and with a few lines of code you can have some cool looking graphs that are interactive.'
             )
