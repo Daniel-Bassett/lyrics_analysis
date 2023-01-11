@@ -159,13 +159,11 @@ def aggrid_table(df):
     no_duplicate_albums = album_df[['artist', 'album']].drop_duplicates()
 
     # create columns for user input 
-    col1, col2, col3 = st.columns([1, 1, 5])
+    col1, col2, col3 = st.columns([2, 1, 5])
     # get user input on min and max number of albums to filter
-    range_of_albums = st.slider('Select a range of albums', value=(5, 10), min_value=1, max_value=15)
+    
     with col1:
-        min_albums = st.number_input('Artist has at least this many albums', min_value=1, value=5)
-    with col2:
-        max_albums = st.number_input('Artist has at most this many albums', min_value=1, value=20)
+        range_of_albums = st.slider('Select a range of albums', value=(5, 10), min_value=1, max_value=15)
     EPs = st.checkbox(label='Include EPs', value=False)
         
 
