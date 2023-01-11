@@ -26,7 +26,7 @@ artist_rank_year = album_df[['rank', 'artist', 'year']].groupby(['artist', 'year
 
 def bar_charts(genres_choice, df):
     top_5 = df
-    col1, col2 = st.columns(2)
+    col1, col2, col3,  = st.columns([2, 2, 2])
     top_5 = word_count.groupby('genre').head().sort_values(by=['genre', 'percentage'], ascending=False)
     for genre in genres_choice:
         if genres_choice.index(genre) % 2 == 0:
@@ -34,14 +34,14 @@ def bar_charts(genres_choice, df):
                 with st.expander(genre, expanded=True):
                     temp_df = top_5[top_5['genre'] == genre]
                     bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
-                    bar_plots.update_layout(title_x=0.5, showlegend=True, height=600)
+                    bar_plots.update_layout(title_x=0.5, showlegend=True, height=500)
                     st.plotly_chart(bar_plots, use_container_width=True)
         else:
             with col2: 
                 with st.expander(genre, expanded=True):
                     temp_df = top_5[top_5['genre'] == genre]
                     bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
-                    bar_plots.update_layout(title_x=0.5, showlegend=True, height=600)
+                    bar_plots.update_layout(title_x=0.5, showlegend=True, height=500)
                     st.plotly_chart(bar_plots, use_container_width=True)
 
 
@@ -150,7 +150,7 @@ def artist_average_table(df):
     album_counts = no_duplicate_albums[min_max_albums_mask]['artist'].value_counts().to_frame().reset_index().rename({'artist': 'album count', 'index': 'artist'}, axis=1)
 
     # merge mean of artists filtered with album counts
-    table = pd.merge(mean_of_artist_filtered, album_counts).rename({'rank': 'average rank of albums (end of year)', 'count': 'total unique albums'}, axis=1)
+    table = pd.merge(mean_of_artist_filtered, album_counts).rename({'rank': 'average rank of artist', 'count': 'total unique albums'}, axis=1)
 
 
 def aggrid_table(df):
@@ -183,7 +183,7 @@ def aggrid_table(df):
     album_counts = no_duplicate_albums[min_max_albums_mask]['artist'].value_counts().to_frame().reset_index().rename({'artist': 'album count', 'index': 'artist'}, axis=1)
 
     # merge mean of artists filtered with album counts
-    final_df = pd.merge(mean_of_artist_filtered, album_counts).rename({'rank': 'average rank of albums (end of year)', 'count': 'total unique albums'}, axis=1)
+    final_df = pd.merge(mean_of_artist_filtered, album_counts).rename({'rank': 'average rank of artist', 'count': 'total unique albums'}, axis=1)
 
     # create columns
     col1, col2 = st.columns([2, 3])
@@ -261,7 +261,9 @@ def main():
                 'Feel free to add/subtract genres to compare!'
                 )
         genres = word_count['genre'].unique()
-        genres_choice = st.multiselect('Choose genres to compare', genres, default=['Christian', 'Electro-Dance'])
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            genres_choice = st.multiselect('Choose genres to compare', genres, default=['Christian', 'Electro-Dance'])
         bar_charts(genres_choice, word_count)
     if selected == 'Lyrics by Genre':
         st.header('Lyrics by Genre')
@@ -279,7 +281,7 @@ def main():
         # aggrid
         st.header('Average Rank of Albums')
         st.write(
-            'Every year, Billboard releases the Top 200 album rankings based on sales as well as audio on-demand streaming activity and digital sales of tracks from albums. '
+            'Every year, Billboard releases the Top 200 end-of-year album rankings based on sales as well as audio on-demand streaming activity and digital sales of tracks from albums. '
             'This calculates the average rank for an all of an artist\'s albums that have made it into the top 200. '
             'You can filter this list based on the number of Top 200 albums the artist has made. For example, if you set min equal to \'5\' and max to \'20\', '
             'it will return all the artists who have made anywhere from 5 to 20 albums that made it on the Top 200 charts. '
