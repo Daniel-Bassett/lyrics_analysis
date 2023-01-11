@@ -77,7 +77,7 @@ def line_chart_lyrics(df):
         genre_choice = st.multiselect(options=genres, default=['Country'],label='Choose a Genre')
    
         words = counts_by_year[counts_by_year['count'] > 2]['word'].unique()
-        word_choice = st.multiselect(options=words, default=['whiskey', 'beer'], label='Choose Words to Compare')
+        word_choice = st.multiselect(options=words, default=['love', 'eyes'], label='Choose Words to Compare')
     # creates mask from the mutliselect genres
     genre_mask = counts_by_year['genre'].isin(genre_choice)
     # plot line
