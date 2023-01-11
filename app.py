@@ -258,7 +258,7 @@ def main():
             st.markdown('')
             st.write(
                 'Finally I was able to use cleaned and organized data. Streamlit and plotly were great tools for visualization and making an interactive application '
-                'very quickly.'
+                'very quickly. '
                 'Just import the data and with a few lines of code you can have some cool looking graphs that are interactive.'
             )
     if selected == 'Top Five Words by Genre':
