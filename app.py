@@ -220,36 +220,37 @@ def main():
             options=['Introduction', 'Top Five Words by Genre', 'Word Popularity by Year', 'Lyrics by Genre', 'Artist Rankings', 'Average Rank of Albums']
         )
     if selected == 'Introduction':
-        st.title('Introduction')
-        st.write(
-            'Have you ever been listening to country music and noticed a trend? They all seem to sing about the same things... trucks, lakes, beer, and whiskey. '
-            'Or maybe you\'re a hip-hop enthusiast and noticed that a lot of lyrics are really NSFW. '
-            'Are you curious about how your favorite singers have been ranking on the charts over the years? '
-            'Who is better? Taylor Swift or Drake? Let\'s find out using data! '
-            'In order to explore this, I first "scraped" together all the top songs and artists from [Billboard\'s](#https://www.billboard.com/) Top 100 Songs for the years 2013 through 2022 using beautifulsoup. '
-            'I then scraped the lyrics off [genius](#https://genius.com/) using the lyrics genius API and put them into csv format. Using pandas, I cleaned the data and manipulated it into dataframes that I found useful. '
-            'Finally, I made an app to visualize this data in an interactive and fun way that I hope you will enjoy!'
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.title('Introduction')
+            st.write(
+                'Have you ever been listening to country music and noticed a trend? They all seem to sing about the same things... trucks, lakes, beer, and whiskey. '
+                'Or maybe you\'re a hip-hop enthusiast and noticed that a lot of lyrics are really NSFW. '
+                'Are you curious about how your favorite singers have been ranking on the charts over the years? '
+                'Who is better? Taylor Swift or Drake? Let\'s find out using data! '
+                'This fun little project proved challenging, but it was a blast. I hope you find this fun as well!'
+                )
+            st.markdown('')
+            st.write(
+                'First, I needed some data! Using beautifulsoup I scraped all the songs, artists, and albums from Billboard across six different genres. '
+                'Once scraped, I output the data in csv format using pandas. This allowed me to iterate over every artist and song title '
+                'so that I could then scrape the corresponding lyrics data off of genius using an API. Once I had all the lyrics in csv format, I used pandas '
+                'to clean and rearrange the data into a format fit for use.'
             )
-        st.markdown('### Let\'s get some data!')
-        st.write(
-            'First, I needed some data! Using beautifulsoup I scraped all the songs, artists, and albums from Billboard across six different genres. '
-            'Once scraped, I output the data in csv format using pandas. This allowed me to iterate over every artist and song title '
-            'so that I could then scrape the corresponding lyrics data off of genius using an API. Once I had all the lyrics in csv format, I used pandas '
-            'to clean and rearrange the data into a format fit for use.'
-        )
-        # st.image('images/lyrics-scraper-code.png', width=500, caption='The code for scraping lyrics')
-        st.markdown('### Cleaning the Data')
-        st.write(
-            'Using pandas, I merged all the dataframes from each genre into one large dataframe. I then stripped chars that were unnecessary(&!?,) '
-            'and often found themselves tacked on to words. I applied a stop word filter to delete all of stop words. I then dropped all the duplicates so that a word is counted '
-            'only one time for each song in which they appear. Using multi-indexing, filtering, and other techniques, I created a few csv files of dataframes that I found useful for my project:'
-        )
-        # st.image('images/clean-data.png', caption='How I cleaned rearranged the data')
-        st.markdown('### Visualization of Data')
-        st.write(
-            'Using the cleaned and organized data, streamlit and plotly were great tools for visualization and making an interactive application. '
-            'Just import the data and with a few lines of code you can have some cool looking graphs that are interactive.'
-        )
+            # st.image('images/lyrics-scraper-code.png', width=500, caption='The code for scraping lyrics')
+            st.markdown('')
+            st.write(
+                'Using pandas, I merged all the dataframes from each genre into one large dataframe. I then stripped chars that were unnecessary(&!?,) '
+                'and often found themselves tacked on to words. I applied a stop word filter to delete all of stop words. I then dropped all the duplicates so that a word is counted '
+                'only one time for each song in which they appear. Using multi-indexing, filtering, and other techniques, I created a few csv files of dataframes that I found useful for my project. '
+            )
+            # st.image('images/clean-data.png', caption='How I cleaned rearranged the data')
+            st.markdown('')
+            st.write(
+                'Finally I was able to use cleaned and organized data. Streamlit and plotly were great tools for visualization and making an interactive application. '
+                'very quickly.'
+                'Just import the data and with a few lines of code you can have some cool looking graphs that are interactive.'
+            )
     if selected == 'Top Five Words by Genre':
         st.title('Top Five Words by Genre')
         st.write(
