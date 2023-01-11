@@ -198,6 +198,7 @@ def aggrid_table(df):
         table = AgGrid(final_df.head(1000), gridOptions=grid_options)
         if table.selected_rows:
             name = table.selected_rows[0]['artist']
+        st.caption('Click on a name to view discography')
         
 
 
@@ -205,7 +206,7 @@ def aggrid_table(df):
     with col2:
         if table.selected_rows:
             min_album_rank = album_df.groupby(['artist', 'album'])['rank'].min().to_frame().reset_index()
-            discography = min_album_rank[min_album_rank['artist'] == name].drop('artist', axis=1)
+            discography = min_album_rank[min_album_rank['artist'] == name].drop('artist', axis=1).reset_index(drop=True)
             st.markdown(f'#### {name}\'s Top 200 Discography')
             st.dataframe(discography, use_container_width=True)
 
@@ -275,7 +276,7 @@ def main():
         # aggrid
         st.header('Average Rank of Albums')
         st.write(
-            'Every year, Billboard releases the Top 200 albums ranking based on sales as well as audio on-demand streaming activity and digital sales of tracks from albums. '
+            'Every year, Billboard releases the Top 200 album rankings based on sales as well as audio on-demand streaming activity and digital sales of tracks from albums. '
             'This calculates the average rank for an all of an artist\'s albums that have made it into the top 200. '
             'You can filter this list based on the number of Top 200 albums the artist has made. For example, if you set min equal to \'5\' and max to \'20\', '
             'it will return all the artists who have made anywhere from 5 to 20 albums that made it on the Top 200 charts. '
