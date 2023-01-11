@@ -160,10 +160,10 @@ def aggrid_table(df):
 
     # create columns for user input 
     col1, col2, col3 = st.columns([2, 1, 5])
-    # get user input on min and max number of albums to filter
+
     
     with col1:
-        range_of_albums = st.slider('Select a range of albums', value=(5, 10), min_value=1, max_value=15)
+        range_of_albums = st.slider('Select a range of albums', value=(5, 10), min_value=0, max_value=15)
     EPs = st.checkbox(label='Include EPs', value=False)
         
 
