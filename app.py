@@ -161,21 +161,32 @@ def aggrid_table(df):
     # create columns for user input 
     col1, col2, col3 = st.columns([1, 1, 5])
     # get user input on min and max number of albums to filter
+    range_of_albums = st.slider('Select a range of albums', value=(5, 10), min_value=1, max_value=15)
     with col1:
         min_albums = st.number_input('Artist has at least this many albums', min_value=1, value=5)
     with col2:
         max_albums = st.number_input('Artist has at most this many albums', min_value=1, value=20)
+    EPs = st.checkbox(label='Include EPs', value=False)
         
 
     # calculates the number of unique albums each artist has and filters out the artist based on number of albums
-    min_max_albums_mask = no_duplicate_albums['artist'].map(no_duplicate_albums['artist'].value_counts().between(min_albums, max_albums))
+    min_max_albums_mask = no_duplicate_albums['artist'].map(no_duplicate_albums['artist'].value_counts().between(range_of_albums[0], range_of_albums[1]))
 
     # creates an array of unique names that meet meet the min_max albums criteria
     artists = no_duplicate_albums[min_max_albums_mask]['artist'].unique()
 
-    # find the mean rank of all artists' albums
-    mean_of_artist_rank = album_df.groupby(['artist', 'album'])['rank'].min().to_frame().reset_index().groupby(['artist'])['rank'].mean().to_frame().reset_index()
+    # create 'include EP' mask depending on user input for checkbox
+    ep_mask = ( ~ album_df['album'].str.contains('\(EP\)'))
+
+    # find the mean rank of all artists' albums, apply EP mask depending on user input checkbox
+    if EPs:
+        mean_of_artist_rank = album_df.groupby(['artist', 'album'])['rank'].min().to_frame().reset_index().groupby(['artist'])['rank'].mean().to_frame().reset_index()
+    else:
+        mean_of_artist_rank = album_df[ep_mask].groupby(['artist', 'album'])['rank'].min().to_frame().reset_index().groupby(['artist'])['rank'].mean().to_frame().reset_index()
     
+    # set decimal place for mean rank
+    mean_of_artist_rank['rank'] = mean_of_artist_rank['rank'].round(1)
+
     # only return the artists that meet the min_max criteria
     mean_of_artist_filtered = mean_of_artist_rank[mean_of_artist_rank['artist'].isin(artists)].sort_values(by='rank')
 
@@ -205,10 +216,11 @@ def aggrid_table(df):
     # use variable "name" to make discography 
     with col2:
         if table.selected_rows:
-            min_album_rank = album_df.groupby(['artist', 'album'])['rank'].min().to_frame().reset_index()
-            discography = min_album_rank[min_album_rank['artist'] == name].drop('artist', axis=1).reset_index(drop=True)
-            st.markdown(f'#### {name}\'s Top 200 Discography')
-            st.dataframe(discography, use_container_width=True)
+            discography = df[df['artist'] == name].sort_values('rank').drop_duplicates(subset='album', keep='first').sort_values(by='year').reset_index(drop='True').drop('artist', axis=1).reindex(columns=['year', 'album', 'rank'])
+            if not EPs:
+                discography = discography[~ discography['album'].str.contains('\(EP\)')]
+            st.markdown(f'#### {name}\'s Top 200 Discography (end-of-year)')
+            st.dataframe(discography, width=500)
 
     
 
@@ -283,8 +295,8 @@ def main():
         st.write(
             'Every year, Billboard releases the Top 200 end-of-year album rankings based on sales as well as audio on-demand streaming activity and digital sales of tracks from albums. '
             'This calculates the average rank for all of an artist\'s albums that have made it into the Top 200. '
-            'You can filter this list based on the number of Top 200 albums the artist has made. For example, if you set min equal to \'5\' and max to \'20\', '
-            'it will return all the artists who have made anywhere from 5 to 20 albums that made it on the Top 200 charts. '
+            'You can filter this list based on the number of Top 200 albums the artist has made. For example, if you set min equal to \'5\' and max to \'10\', '
+            'it will return all the artists who have made anywhere from 5 to 10 albums that made it on the Top 200 charts. '
             'If you set both to 1, you might get a list of one-hit wonders and up-and-comers. '
             'Click on an artist\'s name on the table to get a snapshot of their discography'
         )
