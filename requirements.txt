@@ -4,3 +4,4 @@ streamlit_option_menu
 streamlit-aggrid 
 pandas
 numpy
+wordcloud
