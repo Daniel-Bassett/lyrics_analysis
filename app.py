@@ -3,8 +3,10 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 from st_aggrid import AgGrid
 from st_aggrid import GridOptionsBuilder
+from wordcloud import WordCloud
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 # set the page layout
 st.set_page_config(layout='wide')
@@ -24,25 +26,28 @@ album_df = load_model('data/albums/albums_df.csv')
 artist_rank_year = album_df[['rank', 'artist', 'year']].groupby(['artist', 'year'])['rank'].min().to_frame().reset_index()
 
 
-def bar_charts(genres_choice, df):
+def bar_charts(genre_choice, df):
     top_5 = df
-    col1, col2, col3,  = st.columns([2, 2, 2])
     top_5 = word_count.groupby('genre').head().sort_values(by=['genre', 'percentage'], ascending=False)
-    for genre in genres_choice:
-        if genres_choice.index(genre) % 2 == 0:
-            with col1:
-                with st.expander(genre, expanded=True):
-                    temp_df = top_5[top_5['genre'] == genre]
-                    bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
-                    bar_plots.update_layout(title_x=0.5, showlegend=True, height=500)
-                    st.plotly_chart(bar_plots, use_container_width=True)
-        else:
-            with col2: 
-                with st.expander(genre, expanded=True):
-                    temp_df = top_5[top_5['genre'] == genre]
-                    bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
-                    bar_plots.update_layout(title_x=0.5, showlegend=True, height=500)
-                    st.plotly_chart(bar_plots, use_container_width=True)
+    temp_df = top_5[top_5['genre'] == genre_choice]
+    bar_plots = px.bar(data_frame=temp_df, x='word', y='percentage', title=genre_choice, text=temp_df['percentage'].apply(lambda x: '{0:1.1f}%'.format(x)))
+    bar_plots.update_layout(title_x=0.5, showlegend=True, height=500)
+    st.plotly_chart(bar_plots, use_container_width=True)
+
+
+def word_cloud(genre_choice, df):
+    max_words = 60
+    height = 425
+    cloud_df = df
+    genre_mask = cloud_df['genre'] == genre_choice
+    words = cloud_df[genre_mask]['word'].astype('str')
+    words_cloud = ' '. join(words)
+    cloud = WordCloud(max_words=max_words, height=height).generate(words_cloud)
+    fig = plt.figure()
+    plt.title('Word Cloud')
+    plt.imshow(cloud)
+    plt.axis('off')
+    st.pyplot(fig)
 
 
 def grouped_histogram(df):
@@ -227,7 +232,7 @@ def main():
     with st.sidebar:
         selected = option_menu(
             menu_title='Main Menu',
-            options=['Introduction', 'Top Five Words by Genre', 'Word Popularity by Year', 'Lyrics by Genre', 'Artist Rankings', 'Average Rank of Albums']
+            options=['Introduction', 'Most Frequent Words', 'Word Popularity by Year', 'Lyrics by Genre', 'Artist Rankings', 'Average Rank of Albums']
         )
     if selected == 'Introduction':
         col1, col2, col3 = st.columns([1, 2, 1])
@@ -261,20 +266,24 @@ def main():
                 'very quickly. '
                 'Just import the data and with a few lines of code you can have some cool looking graphs that are interactive.'
             )
-    if selected == 'Top Five Words by Genre':
-        st.title('Top Five Words by Genre')
+    if selected == 'Most Frequent Words':
+        st.title('Most Frequent Words')
         col1, col2 = st.columns([1, 1])
         with col1:
             st.write(
-                'This shows the top words by percentage of songs that contain the word in their lyrics respective of genre. '
-                'The first two charts show the word "love" appearing in 62.2\% of all Christian songs and 57.5\% of all Electro-Dance songs. '
-                'Feel free to add/subtract genres to compare!'
+                'This shows the top words by percentage of songs that contain the word '
+                'along with a wordcloud of the most frequent words. '
+                'The first chart shows the word "love" appearing in 62.2\% of all Christian songs. Feel free to look through other genres! '
                 )
         genres = word_count['genre'].unique()
         col1, col2 = st.columns([1, 3])
         with col1:
-            genres_choice = st.multiselect('Choose genres to compare', genres, default=['Christian', 'Electro-Dance'])
-        bar_charts(genres_choice, word_count)
+            genre_choice = st.selectbox('Choose a genre', genres)
+        col1, col2, col3 = st.columns([1, 1, 2])
+        with col1:
+            bar_charts(genre_choice, word_count)
+        with col2:
+            word_cloud(genre_choice, df)
     if selected == 'Lyrics by Genre':
         st.header('Lyrics by Genre')
         st.write('This shows the frequency of words by genre.')
@@ -297,7 +306,7 @@ def main():
                 'This calculates the average rank for all of an artist\'s albums that have made it into the Top 200 over the last 21 years. '
                 'You can filter this list based on the number of Top 200 albums the artist has made. For example, if you set min equal to \'5\' and max to \'10\', '
                 'it will return all the artists who have made anywhere from 5 to 10 albums that made it on the Top 200 charts. '
-                'If you set both to 1, you might get a list of one-hit wonders and up-and-comers. '
+                'If you set both to 1, you will get a list of one-hit wonders and up-and-comers. '
                 'Click on an artist\'s name on the table to get a snapshot of their discography'
             )
         aggrid_table(album_df)
