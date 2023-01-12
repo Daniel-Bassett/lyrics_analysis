@@ -55,7 +55,7 @@ def grouped_histogram(df):
     word_count = df
     word_options = word_count[word_count['count'] > 3]['word'].unique() # I reduced the number of words available in order to improve performance of app
     with col1:
-        words_choice = st.multiselect(options=word_options, label='Choose Words to Compare', default=['girl', 'boy'])
+        words_choice = st.multiselect(options=word_options, label='Choose Words to Compare', default=['beer'])
     temp_df = word_count[word_count['word'].isin(words_choice)]
     col3, col4 = st.columns([5, 1])
     with col3:
@@ -82,32 +82,20 @@ def line_chart_lyrics(df):
         genre_choice = st.multiselect(options=genres, default=['Country'],label='Choose a Genre')
    
         words = counts_by_year[counts_by_year['count'] > 2]['word'].unique()
-        word_choice = st.multiselect(options=words, default=['love', 'eyes'], label='Choose Words to Compare')
+        word_choice = st.selectbox(options=words, label='Choose a word')
     # creates mask from the mutliselect genres
     genre_mask = counts_by_year['genre'].isin(genre_choice)
     # plot line
     col3, col4 = st.columns(2)
-    for word in word_choice:
-        if word_choice.index(word) % 2 == 0:
-            with col3:
-                with st.expander(label=str(word).upper(), expanded=True):
-                    word_mask = counts_by_year['word'] == word
-                    fig = px.line(data_frame=counts_by_year[genre_mask & word_mask], x='year', y='percentage year', color='genre', title=f'Comparisons for the word {str(word).upper()}')
-                    fig.update_layout(
-                    yaxis_title='Percentage of Songs',
-                    xaxis = dict(tick0=2012, dtick=1)
-                    )
-                    st.plotly_chart(fig)
-        else:
-            with col4:
-                with st.expander(label=str(word).upper(), expanded=True):
-                    word_mask = counts_by_year['word'] == word
-                    fig = px.line(data_frame=counts_by_year[genre_mask & word_mask], x='year', y='percentage year', color='genre', title=f'Comparisons for the word {str(word).upper()}')
-                    fig.update_layout(
-                    yaxis_title='Percentage of Songs',
-                    xaxis = dict(tick0=2012, dtick=1)
-                    )
-                    st.plotly_chart(fig)
+    with col3:
+        with st.expander(label=str(word_choice).upper(), expanded=True):
+            word_mask = counts_by_year['word'] == word_choice
+            fig = px.line(data_frame=counts_by_year[genre_mask & word_mask], x='year', y='percentage year', color='genre', title=f'Comparisons for the word {str(word_choice).upper()}')
+            fig.update_layout(
+            yaxis_title='Percentage of Songs',
+            xaxis = dict(tick0=2012, dtick=1)
+            )
+            st.plotly_chart(fig)
 
 
 def line_chart_artists(df):
@@ -232,7 +220,7 @@ def main():
     with st.sidebar:
         selected = option_menu(
             menu_title='Main Menu',
-            options=['Introduction', 'Most Frequent Words', 'Word Popularity by Year', 'Lyrics by Genre', 'Artist Rankings', 'Average Rank of Albums']
+            options=['Introduction', 'Most Frequent Words', 'Word Popularity by Year', 'Word Popularity Overall', 'Artist Rankings', 'Average Rank of Albums']
         )
     if selected == 'Introduction':
         col1, col2, col3 = st.columns([1, 2, 1])
@@ -284,9 +272,11 @@ def main():
             bar_charts(genre_choice, word_count)
         with col2:
             word_cloud(genre_choice, df)
-    if selected == 'Lyrics by Genre':
-        st.header('Lyrics by Genre')
-        st.write('This shows the frequency of words by genre.')
+    if selected == 'Word Popularity Overall':
+        st.header('Word Popularity Overall')
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            st.write('This shows the frequency of words by genre. On the graph below, you will see that "beer" appears in 12 percent of country songs and only 0.2 percent of pop songs.')
         grouped_histogram(word_count)
     if selected == 'Word Popularity by Year':
         st.header('Word Popularity by Year')
