@@ -220,7 +220,7 @@ def main():
     with st.sidebar:
         selected = option_menu(
             menu_title='Main Menu',
-            options=['Introduction', 'Most Frequent Words', 'Word Popularity by Year', 'Word Popularity Overall', 'Artist Rankings', 'Average Rank of Albums']
+            options=['Introduction', 'Most Frequent Words', 'Word Popularity by Year', 'Word Popularity Overall', 'Average Ranking for Artists']
         )
     if selected == 'Introduction':
         col1, col2, col3 = st.columns([1, 2, 1])
@@ -230,12 +230,11 @@ def main():
                 'Have you ever been listening to country music and noticed a trend? They all seem to sing about the same things... trucks, lakes, beer, and whiskey. '
                 'Or maybe you\'re a hip-hop enthusiast and noticed that a lot of lyrics are really NSFW. '
                 'Are you curious about how your favorite singers have been ranking on the charts over the years? '
-                'Who is better? Taylor Swift or Drake? Let\'s find out using data! '
                 'This fun little project proved challenging, but it was a blast. I hope you find this fun as well!'
                 )
             st.markdown('')
             st.write(
-                'First, I needed some data! Using beautifulsoup I scraped all the songs, artists, and albums from Billboard across six different genres. '
+                'First, I needed some data. Using beautifulsoup I scraped all the songs, artists, and albums from Billboard across six different genres. '
                 'Once scraped, I output the data in csv format using pandas. This allowed me to iterate over every artist and song title '
                 'so that I could then scrape the corresponding lyrics data off of genius using an API. Once I had all the lyrics in csv format, I used pandas '
                 'to clean and rearrange the data into a format fit for use.'
@@ -282,13 +281,9 @@ def main():
         st.header('Word Popularity by Year')
         st.write('Using a line graph, this shows the percentage of songs a word appears in through the years.')
         line_chart_lyrics(counts_by_year)
-    if selected == 'Artist Rankings':
-        st.header('Artist Rankings by Year')
-        st.write('Take a look at your favorite artist\'s performance over the years!' )
-        line_chart_artists(artist_rank_year)
-    if selected == 'Average Rank of Albums':
+    if selected == 'Average Ranking for Artists':
         # aggrid
-        st.header('Average Rank of Albums')
+        st.header('Average Ranking for Artists')
         col1, col2 = st.columns([1, 2])
         with col1:
             st.write(
