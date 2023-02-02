@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project provides a comprehensive analysis of the lyrics of the top 100 end-of-year songs across six different genres over the past 10 years. The final app is [here](https://crispybacon233-lyrics-analysis-app-8pg1wg.streamlit.app/). The project involves collecting the data for the top songs, processing and cleaning the data, creating visualizations, and building a web application to present the findings in an interactive manner.
+This project provides a comprehensive analysis of the lyrics of the top 100 end-of-year songs across six different genres over the past 10 years. The final app is [here](https://songs-lyrics-visualization.streamlit.app/). The project involves collecting the data for the top songs, processing and cleaning the data, creating visualizations, and building a web application to present the findings in an interactive manner.
 
 ## Data Scraping
 
